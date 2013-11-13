@@ -1,6 +1,6 @@
 {
   "name": "ribcage-switcher",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A left and right view switcher for ribcage-ui",
   "main": "pane-switcher.js",
   "dependencies": {
@@ -22,6 +22,7 @@
     "ribcage-ui",
     "backbone"
   ],
+  "style": "switcher.css",
   "author": "techwraith",
   "license": "MIT",
   "readmeFilename": "readme.md"
