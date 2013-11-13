@@ -127,7 +127,7 @@ var PaneSwitcher = Base.extend({
     }
     this['view'+num] = pane;
 
-    this.appendSubview(pane, target);
+    this.appendSubview(pane, target.children(':first'));
 
     new ScrollFix(this['$pane'+num][0]);
   }
