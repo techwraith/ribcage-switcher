@@ -1,0 +1,23 @@
+.pane-holder {
+  position: relative;
+  overflow: hidden;
+  left: 0;
+  height: 100%;
+  -webkit-transition: left var(switch);
+  transition: left var(switch);
+  -webkit-transform: translate3d(0, 0, 0);
+}
+
+.pane-holder > div {
+  display: inline-block;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.pane-holder > .pane > * {
+  min-height: 110%;
+  position: relative;
+  padding-bottom: 60px;
+  overflow: hidden;
+}
