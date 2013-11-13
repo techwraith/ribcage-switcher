@@ -2,7 +2,8 @@ var Base = require('ribcage-view')
   , wrap = require('lodash.wrap')
   , defer = require('lodash.defer')
   , bind = require('lodash.bind')
-  , ScrollFix = require('scrollfix');
+  , ScrollFix = require('scrollfix')
+  , removeProxy = Base.prototype.remove;
 
 var PaneSwitcher = Base.extend({
 
@@ -26,11 +27,20 @@ var PaneSwitcher = Base.extend({
       }
     });
 
+    this.resize = bind(this.resize, this);
+
+    $(window).on('resize', this.resize);
+  }
+
+, remove: function () {
+    $(window).off('resize', this.resize);
+    removeProxy.apply(this, arguments);
   }
 
 , resize: function () {
     this.paneWidth = this.$el.width();
     this.$('.pane').width(this.paneWidth);
+    this.$holder.width(this.paneWidth * this.options.depth);
   }
 
 , afterRender: function () {
@@ -45,8 +55,8 @@ var PaneSwitcher = Base.extend({
     this.paneWidth = this.$el.width();
 
     for (var i=0; i<this.options.depth; i++) {
-      this['$pane'+i] = $('<div class="pane pane-'+i+'"></div>');
-      this['$pane'+i].width(this.paneWidth);
+      // Wrap panes in a div so that the 110% height mobile hack doesn't affect subview elements
+      this['$pane'+i] = $('<div></div>');
       new ScrollFix(this['$pane'+i][0]);
       this.$holder.append(this['$pane'+i]);
 
@@ -56,8 +66,11 @@ var PaneSwitcher = Base.extend({
       }
     }
 
+    this.$holder.wrapInner('<div class="pane pane-'+i+'"></div>');
+
     this.$el.append(this.$holder);
-    this.$holder.width(this.paneWidth * this.options.depth);
+
+    this.resize();
   }
 
 , _next: function () {
