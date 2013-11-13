@@ -2,7 +2,8 @@ var Base = require('ribcage-view')
   , wrap = require('lodash.wrap')
   , defer = require('lodash.defer')
   , bind = require('lodash.bind')
-  , ScrollFix = require('scrollfix');
+  , ScrollFix = require('scrollfix')
+  , removeProxy = Base.prototype.remove;
 
 var PaneSwitcher = Base.extend({
 
@@ -33,6 +34,7 @@ var PaneSwitcher = Base.extend({
 
 , remove: function () {
     $(window).off('resize', this.resize);
+    removeProxy.apply(this, arguments);
   }
 
 , resize: function () {
