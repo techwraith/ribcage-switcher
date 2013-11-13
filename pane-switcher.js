@@ -45,10 +45,11 @@ var PaneSwitcher = Base.extend({
     this.paneWidth = this.$el.width();
 
     for (var i=0; i<this.options.depth; i++) {
-      this['$pane'+i] = $('<div class="pane pane-'+i+'"></div>');
+      // Wrap panes in a div so that the 110% height mobile hack doesn't affect subview elements
+      this['$pane'+i] = $('<div></div>');
       this['$pane'+i].width(this.paneWidth);
       new ScrollFix(this['$pane'+i][0]);
-      this.$holder.append(this['$pane'+i]);
+      this.$holder.append(this['$pane'+i].wrapInner('<div class="pane pane-'+i+'"></div>'));
 
       if(this['view' + i]) {
         this['view' + i].setElement(this['$pane'+i]);
