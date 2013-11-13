@@ -24,6 +24,6 @@ npm install ribcage-switcher
 
   switcher.goToPane(0)
   switcher.next()
-  switcher.pervious()
+  switcher.previous()
 
 ```
