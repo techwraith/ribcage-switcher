@@ -1,6 +1,7 @@
 var Base = require('ribcage-view')
   , wrap = require('lodash.wrap')
   , defer = require('lodash.defer')
+  , bind = require('lodash.bind')
   , ScrollFix = require('scrollfix');
 
 var PaneSwitcher = Base.extend({
@@ -103,8 +104,8 @@ var PaneSwitcher = Base.extend({
     }
     this['view'+num] = pane;
 
-    pane.on('previous', _.bind(this.previous, this))
-    pane.on('next', _.bind(this.next, this))
+    pane.on('previous', bind(this.previous, this))
+    pane.on('next', bind(this.next, this))
 
     this.appendSubview(pane, target);
 
