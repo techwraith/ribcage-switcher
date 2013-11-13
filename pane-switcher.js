@@ -49,6 +49,11 @@ var PaneSwitcher = Base.extend({
       this['$pane'+i].width(this.paneWidth);
       new ScrollFix(this['$pane'+i][0]);
       this.$holder.append(this['$pane'+i]);
+
+      if(this['view' + i]) {
+        this['view' + i].setElement(this['$pane'+i]);
+        this['view' + i].render();
+      }
     }
 
     this.$el.append(this.$holder);
