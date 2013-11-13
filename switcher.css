@@ -3,8 +3,8 @@
   overflow: hidden;
   left: 0;
   height: 100%;
-  -webkit-transition: left var(switch);
-  transition: left var(switch);
+  -webkit-transition: left 0.27s cubic-bezier(0.590, -0.010, 0.495, 0.965);;
+  transition: left 0.27s cubic-bezier(0.590, -0.010, 0.495, 0.965);;
   -webkit-transform: translate3d(0, 0, 0);
 }
 

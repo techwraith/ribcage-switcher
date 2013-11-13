@@ -2,7 +2,8 @@ var Base = require('ribcage-view')
   , wrap = require('lodash.wrap')
   , defer = require('lodash.defer')
   , bind = require('lodash.bind')
-  , ScrollFix = require('scrollfix');
+  , ScrollFix = require('scrollfix')
+  , removeProxy = Base.prototype.remove;
 
 var PaneSwitcher = Base.extend({
 
@@ -26,11 +27,20 @@ var PaneSwitcher = Base.extend({
       }
     });
 
+    this.resize = bind(this.resize, this);
+
+    $(window).on('resize', this.resize);
+  }
+
+, remove: function () {
+    $(window).off('resize', this.resize);
+    removeProxy.apply(this, arguments);
   }
 
 , resize: function () {
     this.paneWidth = this.$el.width();
     this.$('.pane').width(this.paneWidth);
+    this.$holder.width(this.paneWidth * this.options.depth);
   }
 
 , afterRender: function () {
@@ -45,14 +55,27 @@ var PaneSwitcher = Base.extend({
     this.paneWidth = this.$el.width();
 
     for (var i=0; i<this.options.depth; i++) {
-      this['$pane'+i] = $('<div class="pane pane-'+i+'"></div>');
-      this['$pane'+i].width(this.paneWidth);
+      var pane = this['view' + i]
+        , innerPane = $('<div class="inner-pane"></div>');
+
+      // Wrap panes in a div so that the 110% height mobile hack doesn't affect subview elements
+      this['$pane'+i] = $('<div class="pane pane-'+i+'"></div>').append(innerPane);
       new ScrollFix(this['$pane'+i][0]);
       this.$holder.append(this['$pane'+i]);
+
+      if(pane) {
+        pane.setElement(innerPane);
+        pane.render();
+
+        pane.delegateEvents();
+        pane.on('previous', bind(this.previous, this))
+        pane.on('next', bind(this.next, this))
+      }
     }
 
     this.$el.append(this.$holder);
-    this.$holder.width(this.paneWidth * this.options.depth);
+
+    this.resize();
   }
 
 , _next: function () {
@@ -104,10 +127,7 @@ var PaneSwitcher = Base.extend({
     }
     this['view'+num] = pane;
 
-    pane.on('previous', bind(this.previous, this))
-    pane.on('next', bind(this.next, this))
-
-    this.appendSubview(pane, target);
+    this.appendSubview(pane, target.children(':first'));
 
     new ScrollFix(this['$pane'+num][0]);
   }
