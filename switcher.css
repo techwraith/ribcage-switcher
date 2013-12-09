@@ -3,9 +3,29 @@
   overflow: hidden;
   left: 0;
   height: 100%;
-  -webkit-transition: left 0.27s cubic-bezier(0.590, -0.010, 0.495, 0.965);;
-  transition: left 0.27s cubic-bezier(0.590, -0.010, 0.495, 0.965);;
+
+  /**
+  * This is stupid, but unless you separate the properties
+  * it won't work on Android (verified on 4.1)
+  * also, if you use `all` as the transition property, the switcher
+  * will become really glitchy (verified in webkit browsers)
+  * - Ben
+  */
+  -webkit-transition-timing-function: cubic-bezier(0.590, -0.010, 0.495, 0.965);
+  -moz-transition-timing-function: left, -moz-transform, 0.27s cubic-bezier(0.590, -0.010, 0.495, 0.965);
+  -o-transition-timing-function: left, -o-transform, 0.27s cubic-bezier(0.590, -0.010, 0.495, 0.965);
+  transition-timing-function: cubic-bezier(0.590, -0.010, 0.495, 0.965);
+
+  -webkit-transition-property: left, -webkit-transform;
+  -transition-property: left, transform;
+
+  -webkit-transition-duration: 0.27s;
+  -transition-duration: 0.27s;
+
   -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  -transform: translate3d(0, 0, 0);
 }
 
 .pane-holder > div {

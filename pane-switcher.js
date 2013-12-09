@@ -33,6 +33,8 @@ var PaneSwitcher = Base.extend({
       this.resize();
       this.goToPane(this.currentPane);
     }, this);
+
+    this.supportsTransitions = this._supportsTransitions();
   }
 
 , remove: function () {
@@ -85,15 +87,11 @@ var PaneSwitcher = Base.extend({
   }
 
 , _next: function () {
-    //FIXME: This value should be getable via: this.$holder.css('left');
-    //       BUT... https://twitter.com/ChrisStumph/status/337364963750469632
-    //       Seems to trace to webkit animation css, introduced by changing
-    //       order of precedence when CSS files divided up.
-    var currentLeft = parseInt( this.$holder.attr('style').split('left: ')[1] );
+    var currentLeft = this.getCurrentLeft();
     if (isNaN(currentLeft)){
       currentLeft = 0
     }
-    this.$holder.css('left', currentLeft - this.paneWidth);
+    this.setHolderLeft(currentLeft - this.paneWidth);
     this.resetHolderWidth();
     this.currentPane++;
     this.trigger('switch', this.currentPane, this['view'+this.currentPane]);
@@ -102,22 +100,64 @@ var PaneSwitcher = Base.extend({
 
 , _previous: function () {
     var self = this;
-    //FIXME: Same as above regarding this.$holder.css('left');
-    var currentLeft = parseInt(this.$holder.attr('style').split('left: ')[1]);
-    this.$holder.css('left', currentLeft + this.paneWidth);
+    var currentLeft = this.getCurrentLeft();
+    this.setHolderLeft(currentLeft + this.paneWidth);
     this.resetHolderWidth();
     this.currentPane--;
     this.trigger('switch', this.currentPane, this['view'+this.currentPane]);
   }
 
 , goToPane: function (num) {
-    this.$holder.css('left', this.paneWidth * -(num))
+    this.setHolderLeft(this.paneWidth * -(num));
     this.resetHolderWidth();
     this.currentPane = num;
     this.trigger('switch', this.currentPane, this['view'+this.currentPane]);
     this['$pane'+this.currentPane].scrollTop(0);
   }
 
+, getCurrentLeft: function () {
+    //FIXME: This value should be getable via: this.$holder.css('left');
+    //       BUT... https://twitter.com/ChrisStumph/status/337364963750469632
+    //       Seems to trace to webkit animation css, introduced by changing
+    //       order of precedence when CSS files divided up.
+    if(this.supportsTransitions) {
+      return parseInt( this.$holder.attr('style').split('translate3d(')[1], 10 );
+    }
+    else {
+      return parseInt( this.$holder.attr('style').split('left: ')[1], 10 );
+    }
+  }
+
+  // Detect transition support
+  // http://stackoverflow.com/questions/7264899/detect-css-transitions-using-javascript-and-without-modernizr
+, _supportsTransitions: function () {
+    var b = document.body || document.documentElement;
+    var s = b.style;
+    var p = 'transition';
+    if(typeof s[p] == 'string') {return true; }
+
+    // Tests for vendor specific prop
+    v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms'],
+    p = p.charAt(0).toUpperCase() + p.substr(1);
+    for(var i=0; i<v.length; i++) {
+      if(typeof s[v[i] + p] == 'string') { return true; }
+    }
+    return false;
+  }
+
+, setHolderLeft: function (leftAmount) {
+    if(this.supportsTransitions) {
+      this.$holder.css({
+        '-webkit-transform': 'translate3d(' + leftAmount + 'px, 0, 0)'
+      , '-moz-transform': 'translate3d(' + leftAmount + 'px, 0, 0)'
+      , '-o-transform': 'translate3d(' + leftAmount + 'px, 0, 0)'
+      , 'transform': 'translate3d(' + leftAmount + 'px, 0, 0)'
+      });
+    }
+    else {
+      this.$holder.css('left', leftAmount + 'px');
+    }
+  }
 // FIXME: WHY THE HELL DO WE NEED THIS SOMETIMES?!
 , resetHolderWidth: function () {
     var self = this
