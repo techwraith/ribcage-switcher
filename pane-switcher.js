@@ -50,7 +50,7 @@ var PaneSwitcher = Base.extend({
   }
 
 , afterRender: function () {
-    $(window).off('resize', this.resize);
+    $(window).off('resize', this.resizeAndOffset);
 
     // Pane Switchers should always have overflow hidden on them
     // no matter what the target element is
@@ -83,6 +83,7 @@ var PaneSwitcher = Base.extend({
     this.$el.append(this.$holder);
 
     $(window).on('resize', this.resizeAndOffset);
+
     this.resize();
   }
 
@@ -95,9 +96,10 @@ var PaneSwitcher = Base.extend({
 
     if(!noThrottle)
       this.throttleViews();
+    else
+      this.resetHolderWidth();
 
     this.setHolderLeft(currentLeft - this.paneWidth);
-    this.resetHolderWidth();
     this.currentPane++;
     this.trigger('switch', this.currentPane, this['view'+this.currentPane]);
     this['$pane'+this.currentPane].scrollTop(0);
@@ -109,9 +111,10 @@ var PaneSwitcher = Base.extend({
 
     if(!noThrottle)
       this.throttleViews();
+    else
+      this.resetHolderWidth();
 
     this.setHolderLeft(currentLeft + this.paneWidth);
-    this.resetHolderWidth();
     this.currentPane--;
     this.trigger('switch', this.currentPane, this['view'+this.currentPane]);
   }
@@ -119,9 +122,10 @@ var PaneSwitcher = Base.extend({
 , goToPane: function (num, noThrottle) {
     if(!noThrottle && this.currentPane != num)
       this.throttleViews();
+    else
+      this.resetHolderWidth();
 
     this.setHolderLeft(this.paneWidth * -(num));
-    this.resetHolderWidth();
     this.currentPane = num;
     this.trigger('switch', this.currentPane, this['view'+this.currentPane]);
     this['$pane'+this.currentPane].scrollTop(0);
@@ -199,7 +203,10 @@ var PaneSwitcher = Base.extend({
       eachPane(function (subview) {
         subview.trigger('transition:end');
       });
+
       self.$holder.off(animationEvents, disableThrottling);
+
+      self.resetHolderWidth();
     };
 
     self.trigger('transition:start', self.currentPane, self['view'+self.currentPane]);
@@ -217,7 +224,7 @@ var PaneSwitcher = Base.extend({
     var self = this
       , width = this.$holder.width();
     this.$holder.width(0);
-    defer(function () { self.$holder.width(width);});
+    defer(function () {self.$holder.width(width);});
   }
 
 , setPane: function (num, pane) {
