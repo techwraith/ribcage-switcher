@@ -31,7 +31,8 @@ var PaneSwitcher = Base.extend({
 
     this.resizeAndOffset = bind(function () {
       this.resize();
-      this.goToPane(this.currentPane);
+      // Don't fire transition events
+      this.goToPane(this.currentPane, false);
     }, this);
 
     this.supportsTransitions = this._supportsTransitions();
@@ -82,15 +83,19 @@ var PaneSwitcher = Base.extend({
     this.$el.append(this.$holder);
 
     $(window).on('resize', this.resizeAndOffset);
-
     this.resize();
   }
 
-, _next: function () {
+, _next: function (noThrottle) {
     var currentLeft = this.getCurrentLeft();
+
     if (isNaN(currentLeft)){
       currentLeft = 0
     }
+
+    if(!noThrottle)
+      this.throttleViews();
+
     this.setHolderLeft(currentLeft - this.paneWidth);
     this.resetHolderWidth();
     this.currentPane++;
@@ -98,16 +103,23 @@ var PaneSwitcher = Base.extend({
     this['$pane'+this.currentPane].scrollTop(0);
   }
 
-, _previous: function () {
+, _previous: function (noThrottle) {
     var self = this;
     var currentLeft = this.getCurrentLeft();
+
+    if(!noThrottle)
+      this.throttleViews();
+
     this.setHolderLeft(currentLeft + this.paneWidth);
     this.resetHolderWidth();
     this.currentPane--;
     this.trigger('switch', this.currentPane, this['view'+this.currentPane]);
   }
 
-, goToPane: function (num) {
+, goToPane: function (num, noThrottle) {
+    if(!noThrottle && this.currentPane != num)
+      this.throttleViews();
+
     this.setHolderLeft(this.paneWidth * -(num));
     this.resetHolderWidth();
     this.currentPane = num;
@@ -158,6 +170,48 @@ var PaneSwitcher = Base.extend({
       this.$holder.css('left', leftAmount + 'px');
     }
   }
+
+, throttleViews: function () {
+    var self = this
+      , animationDuration = 300
+      , animationEndEvents = [  'transitionend'
+                              , 'webkitTransitionEnd'
+                              , 'oTransitionEnd'
+                              , 'otransitionend'
+                              , 'MSTransitionEnd']
+      , animationEvents = animationEndEvents.join(' ')
+      , disableThrottling
+      , animationTimeout
+      , eachPane;
+
+    eachPane = function (cb) {
+      for (var i=0, ii=self.options.depth; i<ii; ++i) {
+        if(self['view'+i])
+          cb(self['view'+i]);
+      }
+    };
+
+    disableThrottling = function () {
+      clearTimeout(animationTimeout);
+
+      self.trigger('transition:end', self.currentPane, self['view'+self.currentPane]);
+
+      eachPane(function (subview) {
+        subview.trigger('transition:end');
+      });
+      self.$holder.off(animationEvents, disableThrottling);
+    };
+
+    self.trigger('transition:start', self.currentPane, self['view'+self.currentPane]);
+
+    eachPane(function (subview) {
+      subview.trigger('transition:start');
+    });
+
+    self.$holder.one(animationEndEvents, disableThrottling);
+    animationTimeout = setTimeout(disableThrottling, animationDuration);
+  }
+
 // FIXME: WHY THE HELL DO WE NEED THIS SOMETIMES?!
 , resetHolderWidth: function () {
     var self = this
