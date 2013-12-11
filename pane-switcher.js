@@ -192,13 +192,17 @@ var PaneSwitcher = Base.extend({
     };
 
     disableThrottling = function () {
+      clearTimeout(animationTimeout);
+
+      self.trigger('transition:end', self.currentPane, self['view'+self.currentPane]);
+
       eachPane(function (subview) {
         subview.trigger('transition:end');
       });
-
-      clearTimeout(animationTimeout);
       self.$holder.off(animationEvents, disableThrottling);
     };
+
+    self.trigger('transition:start', self.currentPane, self['view'+self.currentPane]);
 
     eachPane(function (subview) {
       subview.trigger('transition:start');

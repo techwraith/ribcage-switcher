@@ -34,12 +34,20 @@ The switcher will send panes `transition:start` and `transition:end` events.
 
 ```js
   // Fires `transition:start` immediately, and `transition:end` approx. 270-300ms later.
-  switcher.next();
+  switcher.next()
 
   // You can disable these events on a per-call basis
-  switcher.goToPane(0, true);
-  switcher.next(true);
-  switcher.prev(true);
+  switcher.goToPane(0, true)
+  switcher.next(true)
+  switcher.prev(true)
+```
+
+The switcher itself also emits `transition:start` and `transition:end` events.
+
+```
+  switcher.on('transition:end', function (paneIndex, paneView) {
+    // Do something
+  })
 ```
 
 ### Throttling Pane Renders
@@ -49,15 +57,15 @@ Rendering subviews in the middle of a transition can result in interface lag. Av
 ```javascript
   var myPane = require('ribcage-view').extend({
     throttle: true  // Defaults to false
-  });
+  })
 
-  switcher.setPane(1, myPane);
+  switcher.setPane(1, myPane)
 
-  myPane.render(); // Will run immediately
+  myPane.render() // Will run immediately
 
-  switcher.next(); // Start moving to the next pane
+  switcher.next() // Start moving to the next pane
 
   setTimeout(function () {
-    myPane.render();  // Will run only after the switcher has transitioned
-  }, 100);
+    myPane.render() // Will run only after the switcher has transitioned
+  }, 100)
 ```
