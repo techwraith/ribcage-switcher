@@ -4,9 +4,9 @@
   "description": "A left and right view switcher for ribcage-ui",
   "main": "pane-switcher.js",
   "dependencies": {
-    "lodash.defer": "~2.3.0",
-    "lodash.wrap": "~2.3.0",
-    "lodash.bind": "~2.3.0",
+    "lodash.wrap": "~2.4.0",
+    "lodash.bind": "~2.4.0",
+    "lodash.debounce": "~2.4.0",
     "ribcage-view": "~0.0.11",
     "scrollfix": "~0.0.2"
   },
