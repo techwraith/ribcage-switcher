@@ -1,7 +1,7 @@
 var Base = require('ribcage-view')
   , wrap = require('lodash.wrap')
-  , defer = require('lodash.defer')
   , bind = require('lodash.bind')
+  , debounce = require('lodash.debounce')
   , ScrollFix = require('scrollfix')
   , removeProxy = Base.prototype.remove;
 
@@ -96,8 +96,6 @@ var PaneSwitcher = Base.extend({
 
     if(!noThrottle)
       this.throttleViews();
-    else
-      this.resetHolderWidth();
 
     this.setHolderLeft(currentLeft - this.paneWidth);
     this.currentPane++;
@@ -111,8 +109,6 @@ var PaneSwitcher = Base.extend({
 
     if(!noThrottle)
       this.throttleViews();
-    else
-      this.resetHolderWidth();
 
     this.setHolderLeft(currentLeft + this.paneWidth);
     this.currentPane--;
@@ -122,8 +118,6 @@ var PaneSwitcher = Base.extend({
 , goToPane: function (num, noThrottle) {
     if(!noThrottle && this.currentPane != num)
       this.throttleViews();
-    else
-      this.resetHolderWidth();
 
     this.setHolderLeft(this.paneWidth * -(num));
     this.currentPane = num;
@@ -205,8 +199,6 @@ var PaneSwitcher = Base.extend({
       });
 
       self.$holder.off(animationEvents, disableThrottling);
-
-      self.resetHolderWidth();
     };
 
     self.trigger('transition:start', self.currentPane, self['view'+self.currentPane]);
@@ -220,12 +212,15 @@ var PaneSwitcher = Base.extend({
   }
 
 // FIXME: WHY THE HELL DO WE NEED THIS SOMETIMES?!
+// Seriously, why the hell do we even need this?
+/*
 , resetHolderWidth: function () {
     var self = this
       , width = this.$holder.width();
     this.$holder.width(0);
     defer(function () {self.$holder.width(width);});
   }
+*/
 
 , setPane: function (num, pane) {
     var target = this['$pane'+num];
