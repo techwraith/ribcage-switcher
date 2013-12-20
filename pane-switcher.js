@@ -1,3 +1,5 @@
+/* global $ */
+
 var Base = require('ribcage-view')
   , wrap = require('lodash.wrap')
   , bind = require('lodash.bind')
@@ -75,8 +77,8 @@ var PaneSwitcher = Base.extend({
         pane.render();
 
         pane.delegateEvents();
-        pane.on('previous', bind(this.previous, this))
-        pane.on('next', bind(this.next, this))
+        pane.on('previous', bind(this.previous, this));
+        pane.on('next', bind(this.next, this));
       }
     }
 
@@ -91,7 +93,7 @@ var PaneSwitcher = Base.extend({
     var currentLeft = this.getCurrentLeft();
 
     if (isNaN(currentLeft)){
-      currentLeft = 0
+      currentLeft = 0;
     }
 
     if(!noThrottle)
@@ -104,7 +106,6 @@ var PaneSwitcher = Base.extend({
   }
 
 , _previous: function (noThrottle) {
-    var self = this;
     var currentLeft = this.getCurrentLeft();
 
     if(!noThrottle)
@@ -141,13 +142,15 @@ var PaneSwitcher = Base.extend({
   // Detect transition support
   // http://stackoverflow.com/questions/7264899/detect-css-transitions-using-javascript-and-without-modernizr
 , _supportsTransitions: function () {
-    var b = document.body || document.documentElement;
-    var s = b.style;
-    var p = 'transition';
+    var b = document.body || document.documentElement
+      , s = b.style
+      , p = 'transition'
+      , v;
+
     if(typeof s[p] == 'string') {return true; }
 
     // Tests for vendor specific prop
-    v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms'],
+    v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms'];
     p = p.charAt(0).toUpperCase() + p.substr(1);
     for(var i=0; i<v.length; i++) {
       if(typeof s[v[i] + p] == 'string') { return true; }
