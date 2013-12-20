@@ -31,11 +31,11 @@ var PaneSwitcher = Base.extend({
 
     this.resize = bind(this.resize, this);
 
-    this.resizeAndOffset = bind(function () {
+    this.resizeAndOffset = debounce(bind(function () {
       this.resize();
       // Don't fire transition events
       this.goToPane(this.currentPane, false);
-    }, this);
+    }, this), 300);
 
     this.supportsTransitions = this._supportsTransitions();
   }
