@@ -223,13 +223,25 @@ var PaneSwitcher = Base.extend({
   }
 
 , setPane: function (num, pane) {
-    var target = this['$pane'+num];
+    var target = this['$pane'+num]
+      , innerPane = $('<div class="inner-pane"></div>');
+
     if (this['view'+num]) {
       this.detachSubview(this['view'+num]);
     }
+
     this['view'+num] = pane;
 
-    this.appendSubview(pane, target.children(':first'));
+    target.append(innerPane);
+
+    if(pane) {
+      pane.setElement(innerPane);
+      pane.render();
+
+      pane.delegateEvents();
+      pane.on('previous', bind(this.previous, this));
+      pane.on('next', bind(this.next, this));
+    }
 
     new ScrollFix(this['$pane'+num][0]);
   }
