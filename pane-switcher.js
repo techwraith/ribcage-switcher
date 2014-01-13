@@ -1,7 +1,9 @@
+/* global $ */
+
 var Base = require('ribcage-view')
   , wrap = require('lodash.wrap')
-  , defer = require('lodash.defer')
   , bind = require('lodash.bind')
+  , debounce = require('lodash.debounce')
   , ScrollFix = require('scrollfix')
   , removeProxy = Base.prototype.remove;
 
@@ -30,17 +32,17 @@ var PaneSwitcher = Base.extend({
 
     this.resize = bind(this.resize, this);
 
-    this.resizeAndOffset = bind(function () {
+    this.resizeAndOffset = debounce(bind(function () {
       this.resize();
       // Don't fire transition events
       this.goToPane(this.currentPane, false);
-    }, this);
+    }, this), 300);
 
     this.supportsTransitions = this._supportsTransitions();
   }
 
 , remove: function () {
-    $(window).off('resize', this.resizeAndOffset);
+    $(window).off('resize orientationchange', this.resizeAndOffset);
     removeProxy.apply(this, arguments);
   }
 
@@ -76,15 +78,14 @@ var PaneSwitcher = Base.extend({
         pane.render();
 
         pane.delegateEvents();
-        pane.on('previous', bind(this.previous, this))
-        pane.on('next', bind(this.next, this))
+        pane.on('previous', bind(this.previous, this));
+        pane.on('next', bind(this.next, this));
       }
     }
 
     this.$el.append(this.$holder);
 
     $(window).on('resize orientationchange', this.resizeAndOffset);
-
     this.resize();
   }
 
@@ -92,28 +93,25 @@ var PaneSwitcher = Base.extend({
     var currentLeft = this.getCurrentLeft();
 
     if (isNaN(currentLeft)){
-      currentLeft = 0
+      currentLeft = 0;
     }
 
     if(!noThrottle)
       this.throttleViews();
 
     this.setHolderLeft(currentLeft - this.paneWidth);
-    this.resetHolderWidth();
     this.currentPane++;
     this.trigger('switch', this.currentPane, this['view'+this.currentPane]);
     this['$pane'+this.currentPane].scrollTop(0);
   }
 
 , _previous: function (noThrottle) {
-    var self = this;
     var currentLeft = this.getCurrentLeft();
 
     if(!noThrottle)
       this.throttleViews();
 
     this.setHolderLeft(currentLeft + this.paneWidth);
-    this.resetHolderWidth();
     this.currentPane--;
     this.trigger('switch', this.currentPane, this['view'+this.currentPane]);
   }
@@ -123,7 +121,6 @@ var PaneSwitcher = Base.extend({
       this.throttleViews();
 
     this.setHolderLeft(this.paneWidth * -(num));
-    this.resetHolderWidth();
     this.currentPane = num;
     this.trigger('switch', this.currentPane, this['view'+this.currentPane]);
     this['$pane'+this.currentPane].scrollTop(0);
@@ -145,13 +142,15 @@ var PaneSwitcher = Base.extend({
   // Detect transition support
   // http://stackoverflow.com/questions/7264899/detect-css-transitions-using-javascript-and-without-modernizr
 , _supportsTransitions: function () {
-    var b = document.body || document.documentElement;
-    var s = b.style;
-    var p = 'transition';
+    var b = document.body || document.documentElement
+      , s = b.style
+      , p = 'transition'
+      , v;
+
     if(typeof s[p] == 'string') {return true; }
 
     // Tests for vendor specific prop
-    v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms'],
+    v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms'];
     p = p.charAt(0).toUpperCase() + p.substr(1);
     for(var i=0; i<v.length; i++) {
       if(typeof s[v[i] + p] == 'string') { return true; }
@@ -201,6 +200,7 @@ var PaneSwitcher = Base.extend({
       eachPane(function (subview) {
         subview.trigger('transition:end');
       });
+
       self.$holder.off(animationEvents, disableThrottling);
     };
 
@@ -215,12 +215,15 @@ var PaneSwitcher = Base.extend({
   }
 
 // FIXME: WHY THE HELL DO WE NEED THIS SOMETIMES?!
+// Seriously, why the hell do we even need this?
+/*
 , resetHolderWidth: function () {
     var self = this
       , width = this.$holder.width();
     this.$holder.width(0);
-    defer(function () { self.$holder.width(width);});
+    defer(function () {self.$holder.width(width);});
   }
+*/
 
 , setPane: function (num, pane) {
     var target = this['$pane'+num]
