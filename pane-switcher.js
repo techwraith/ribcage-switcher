@@ -263,6 +263,15 @@ var PaneSwitcher = Base.extend({
     new ScrollFix(this['$pane'+num][0]);
   }
 
+, beforeClose: function () {
+    for(var i=0, ii=this.options.depth; i<ii; ++i) {
+      if(this['view'+i]) {
+        this.detachSubview(this['view'+i]);
+        this['view'+i].close();
+      }
+    }
+  }
+
 });
 
 module.exports = PaneSwitcher;
