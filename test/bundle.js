@@ -25468,19 +25468,14 @@ var PaneSwitcher = Base.extend({
     this.paneWidth = this.$el.width();
 
     for (var i=0; i<this.options.depth; i++) {
-      var pane = this['view' + i]
-        , innerPane = $('<div class="inner-pane"></div>');
+      var pane = this['view' + i];
 
       // Wrap panes in a div so that the 110% height mobile hack doesn't affect subview elements
-      this['$pane'+i] = $('<div class="pane pane-'+i+'"></div>').append(innerPane);
-      new ScrollFix(this['$pane'+i][0]);
+      this['$pane'+i] = $('<div class="pane pane-'+i+'">').append($('<div class="inner-pane">'));
       this.$holder.append(this['$pane'+i]);
 
-      if(pane) {
-        pane.setElement(innerPane);
-        pane.render();
-        this.bindPaneEvents(pane);
-      }
+      if(pane)
+        this.setPane(0, pane);
     }
 
     this.$el.empty().append(this.$holder);
