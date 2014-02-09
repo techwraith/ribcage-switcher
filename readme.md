@@ -14,6 +14,31 @@ npm install ribcage-switcher
 ```javascript
 
   var Switcher = require('ribcage-switcher')
+    , ribcage = require('ribcage-view')
+    , FirstView
+    , NextView = require('NextView')
+
+  FirstView = ribcage.extend({
+    events: {'click a': 'push'}
+  , template: '<a href="#">Push</a>'
+  , push: function () {
+      this.trigger('push', new NextView({rootView: this}))
+    }
+  })
+
+  var switcher = new Switcher({
+    rootView: new FirstView()
+  })
+
+  // See tests for a more complex example
+
+```
+
+## Legacy Use
+
+```javascript
+
+  var Switcher = require('ribcage-switcher')
 
   var switcher = new Switcher({
     depth: 2

@@ -4,8 +4,7 @@ var Base = require('ribcage-view')
   , wrap = require('lodash.wrap')
   , bind = require('lodash.bind')
   , debounce = require('lodash.debounce')
-  , ScrollFix = require('scrollfix')
-  , removeProxy = Base.prototype.remove;
+  , ScrollFix = require('scrollfix');
 
 var PaneSwitcher = Base.extend({
 
@@ -13,6 +12,14 @@ var PaneSwitcher = Base.extend({
     this.options = opts;
 
     this.currentPane = this.options.currentPane || 0;
+
+    if(opts.rootView) {
+      this.options.depth = 1;
+      this.options.rootView = opts.rootView;
+
+      // Can't setPane now because render hasn't happened yet
+      // Will setPane in afterRender
+    }
 
     this.next = wrap(this.next, function (fn) {
       if (fn) {
@@ -30,6 +37,10 @@ var PaneSwitcher = Base.extend({
       }
     });
 
+    this.push = bind(this.push, this);
+    this.pop = bind(this.pop, this);
+    this.goToView = bind(this.goToView, this);
+
     this.resize = bind(this.resize, this);
 
     this.resizeAndOffset = debounce(bind(function () {
@@ -39,11 +50,6 @@ var PaneSwitcher = Base.extend({
     }, this), 300);
 
     this.supportsTransitions = this._supportsTransitions();
-  }
-
-, remove: function () {
-    $(window).off('resize orientationchange', this.resizeAndOffset);
-    removeProxy.apply(this, arguments);
   }
 
 , resize: function () {
@@ -65,28 +71,64 @@ var PaneSwitcher = Base.extend({
     this.paneWidth = this.$el.width();
 
     for (var i=0; i<this.options.depth; i++) {
-      var pane = this['view' + i]
-        , innerPane = $('<div class="inner-pane"></div>');
+      var pane = this['view' + i];
 
       // Wrap panes in a div so that the 110% height mobile hack doesn't affect subview elements
-      this['$pane'+i] = $('<div class="pane pane-'+i+'"></div>').append(innerPane);
-      new ScrollFix(this['$pane'+i][0]);
+      this['$pane'+i] = $('<div class="pane pane-'+i+'">').append($('<div class="inner-pane">'));
       this.$holder.append(this['$pane'+i]);
 
-      if(pane) {
-        pane.setElement(innerPane);
-        pane.render();
-
-        pane.delegateEvents();
-        pane.on('previous', bind(this.previous, this));
-        pane.on('next', bind(this.next, this));
-      }
+      if(pane)
+        this.setPane(0, pane);
     }
 
-    this.$el.append(this.$holder);
+    this.$el.empty().append(this.$holder);
+
+    // Set the root view once
+    if(this.options.rootView && !this.view0) {
+      this.setPane(0, this.options.rootView);
+    }
 
     $(window).on('resize orientationchange', this.resizeAndOffset);
     this.resize();
+  }
+
+, bindPaneEvents: function (pane) {
+    this.stopListening(pane);
+    this.listenTo(pane, 'previous', bind(this.previous, this));
+    this.listenTo(pane, 'next', bind(this.next, this));
+    this.listenTo(pane, 'push', this.push);
+    this.listenTo(pane, 'pop', this.pop);
+    this.listenTo(pane, 'goToView', this.goToView);
+  }
+
+, push: function (view) {
+    this.options.depth++;
+
+    // Need to create the new pane
+    this.render();
+
+    this.setPane(this.options.depth - 1, view);
+    this.goToPane(this.options.depth - 1);
+  }
+
+, pop: function () {
+    this.removeView('view' + (this.options.depth - 1));
+    this.options.depth--;
+
+    this.render();
+
+    this.goToPane(this.options.depth - 1);
+  }
+
+, goToView: function (view) {
+    for(var i=0, ii=this.options.depth; i<ii; ++i) {
+      if(this['view' + i] === view) {
+        this.goToPane(i);
+        return;
+      }
+    }
+
+    throw new Error('View not found');
   }
 
 , _next: function (noThrottle) {
@@ -238,7 +280,6 @@ var PaneSwitcher = Base.extend({
     if(targetInnerPane.length) {
       pane.setElement(targetInnerPane);
       pane.render();
-      pane.delegateEvents();
       this.appendSubview(pane, target);
     }
     // If we are re-attaching an existing pane
@@ -251,24 +292,29 @@ var PaneSwitcher = Base.extend({
       innerPane = $('<div class="inner-pane"></div>');
       pane.setElement(innerPane);
       pane.render();
-      pane.delegateEvents();
       this.appendSubview(pane, target);
     }
 
     this['view'+num] = pane;
 
-    pane.on('previous', bind(this.previous, this));
-    pane.on('next', bind(this.next, this));
+    this.bindPaneEvents(pane);
 
     new ScrollFix(this['$pane'+num][0]);
   }
 
 , beforeClose: function () {
     for(var i=0, ii=this.options.depth; i<ii; ++i) {
-      if(this['view'+i]) {
-        this.detachSubview(this['view'+i]);
-        this['view'+i].close();
-      }
+      this.removeView('view' + i);
+    }
+
+    $(window).off('resize orientationchange', this.resizeAndOffset);
+  }
+
+, removeView: function (key) {
+    if(this[key]) {
+      this.detachSubview(this[key]);
+      this[key].close();
+      delete this[key];
     }
   }
 
