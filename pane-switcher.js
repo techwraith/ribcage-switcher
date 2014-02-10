@@ -78,7 +78,7 @@ var PaneSwitcher = Base.extend({
       this.$holder.append(this['$pane'+i]);
 
       if(pane)
-        this.setPane(0, pane);
+        this.setPane(i, pane, {render: false});
     }
 
     this.$el.empty().append(this.$holder);
