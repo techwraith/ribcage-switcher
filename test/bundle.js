@@ -25475,7 +25475,7 @@ var PaneSwitcher = Base.extend({
       this.$holder.append(this['$pane'+i]);
 
       if(pane)
-        this.setPane(i, pane, {render: false});
+        this.setPane(i, pane);
     }
 
     this.$el.empty().append(this.$holder);
@@ -25503,12 +25503,29 @@ var PaneSwitcher = Base.extend({
   }
 
 , push: function (view) {
+    var newPaneIndex = this.currentPane + 1
+      , pane;
+
+    // Remove all panes after the current pane
+    for(var i=newPaneIndex, ii=this.options.depth - 1; i<ii; ++i) {
+      this.removePane(i);
+    }
+
+    // Append a new pane
+    this['view' + newPaneIndex] = view;
+    pane = this['view' + newPaneIndex];
+
+    // Wrap panes in a div so that the 110% height mobile hack doesn't affect subview elements
+    this['$pane'+newPaneIndex] = $('<div class="pane pane-'+i+'">').append($('<div class="inner-pane">'));
+    this.$holder.append(this['$pane'+newPaneIndex]);
+    this.setPane(i, pane);
+
     this.options.depth = this.currentPane + 2;
 
-    // Need to create the new pane
-    this.render();
-
     this.setPane(this.currentPane + 1, view);
+
+    this.resizeAndOffset();
+
     this.goToPane(this.currentPane + 1);
   }
 
@@ -25723,6 +25740,15 @@ var PaneSwitcher = Base.extend({
     }
 
     $(window).off('resize orientationchange', this.resizeAndOffset);
+  }
+
+, removePane: function (index) {
+    if(this['$pane'+index]) {
+      this['$pane'+index].remove();
+      delete this['$pane'+index];
+
+      this.removeView('view' + index);
+    }
   }
 
 , removeView: function (key) {
