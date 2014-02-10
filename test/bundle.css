@@ -268,7 +268,9 @@ body {
     position: absolute;
   }
 }
-;.pane-holder {
+
+
+.pane-holder {
   position: relative;
   overflow: hidden;
   left: 0;

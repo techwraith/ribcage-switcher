@@ -25416,6 +25416,18 @@ var PaneSwitcher = Base.extend({
 
       // Can't setPane now because render hasn't happened yet
       // Will setPane in afterRender
+
+
+      this.previous = this.pop;
+    }
+    else {
+      this.previous = wrap(this.previous, function (fn) {
+        if (fn) {
+          fn(this._previous());
+        } else {
+          this._previous();
+        }
+      });
     }
 
     this.next = wrap(this.next, function (fn) {
@@ -25423,14 +25435,6 @@ var PaneSwitcher = Base.extend({
         fn(this._next());
       } else {
         this._next();
-      }
-    });
-
-    this.previous = wrap(this.previous, function (fn) {
-      if (fn) {
-        fn(this._previous());
-      } else {
-        this._previous();
       }
     });
 
@@ -25524,7 +25528,7 @@ var PaneSwitcher = Base.extend({
 
     this.setPane(this.currentPane + 1, view);
 
-    this.resizeAndOffset();
+    this.resize();
 
     this.goToPane(this.currentPane + 1);
   }
@@ -25532,7 +25536,8 @@ var PaneSwitcher = Base.extend({
 , pop: function () {
     var self = this
       , afterTransition
-      , transitionEnded = false;
+      , transitionEnded = false
+      , removedPaneIndex = self.currentPane;
 
     afterTransition = function () {
       if(transitionEnded)
@@ -25540,10 +25545,9 @@ var PaneSwitcher = Base.extend({
 
       transitionEnded = true;
 
-      self.removeView('view' + (self.currentPane + 1));
-      self.options.depth = (self.currentPane + 1);
-
-      self.render();
+      self.removePane(removedPaneIndex);
+      self.options.depth = removedPaneIndex;
+      self.resize();
     };
 
     this.once('transition:end', afterTransition);
