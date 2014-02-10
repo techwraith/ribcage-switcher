@@ -93,7 +93,11 @@ var PaneSwitcher = Base.extend({
   }
 
 , bindPaneEvents: function (pane) {
-    this.stopListening(pane);
+    this.stopListening(pane, 'previous');
+    this.stopListening(pane, 'next');
+    this.stopListening(pane, 'push');
+    this.stopListening(pane, 'pop');
+    this.stopListening(pane, 'goToView');
     this.listenTo(pane, 'previous', bind(this.previous, this));
     this.listenTo(pane, 'next', bind(this.next, this));
     this.listenTo(pane, 'push', this.push);
