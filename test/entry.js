@@ -80,7 +80,7 @@ describe('A Simple Switcher', function () {
     assert.equal(paneHolder.children[1].children[0].children.length, 2);
   });
 
-  it('should pop the second view', function () {
+  it('should pop the second view', function (done) {
     var switcher
       , paneHolder
       , secondPane
@@ -93,10 +93,16 @@ describe('A Simple Switcher', function () {
 
     nextLink.click();
 
-    // There should now be one pane
-    switcher = fixture.children[0];
-    paneHolder = switcher.children[0];
-    assert.equal(paneHolder.children.length, 1);
+    setTimeout(function () {
+
+      // There should now be one pane
+      switcher = fixture.children[0];
+      paneHolder = switcher.children[0];
+      assert.equal(paneHolder.children.length, 1);
+
+      done();
+
+    }, 1000);
   });
 
   it('should push the second view', function () {

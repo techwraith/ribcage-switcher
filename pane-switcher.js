@@ -106,22 +106,36 @@ var PaneSwitcher = Base.extend({
   }
 
 , push: function (view) {
-    this.options.depth++;
+    this.options.depth = this.currentPane + 2;
 
     // Need to create the new pane
     this.render();
 
-    this.setPane(this.options.depth - 1, view);
-    this.goToPane(this.options.depth - 1);
+    this.setPane(this.currentPane + 1, view);
+    this.goToPane(this.currentPane + 1);
   }
 
 , pop: function () {
-    this.removeView('view' + (this.options.depth - 1));
-    this.options.depth--;
+    var self = this
+      , afterTransition
+      , transitionEnded = false;
 
-    this.render();
+    afterTransition = function () {
+      if(transitionEnded)
+        return;
 
-    this.goToPane(this.options.depth - 1);
+      transitionEnded = true;
+
+      self.removeView('view' + (self.currentPane + 1));
+      self.options.depth = (self.currentPane + 1);
+
+      self.render();
+    };
+
+    this.once('transition:end', afterTransition);
+    setTimeout(afterTransition, 400);
+
+    this.goToPane(this.currentPane - 1);
   }
 
 , goToView: function (view) {

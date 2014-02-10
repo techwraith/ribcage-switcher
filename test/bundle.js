@@ -25475,7 +25475,7 @@ var PaneSwitcher = Base.extend({
       this.$holder.append(this['$pane'+i]);
 
       if(pane)
-        this.setPane(0, pane);
+        this.setPane(i, pane, {render: false});
     }
 
     this.$el.empty().append(this.$holder);
@@ -25490,7 +25490,11 @@ var PaneSwitcher = Base.extend({
   }
 
 , bindPaneEvents: function (pane) {
-    this.stopListening(pane);
+    this.stopListening(pane, 'previous');
+    this.stopListening(pane, 'next');
+    this.stopListening(pane, 'push');
+    this.stopListening(pane, 'pop');
+    this.stopListening(pane, 'goToView');
     this.listenTo(pane, 'previous', bind(this.previous, this));
     this.listenTo(pane, 'next', bind(this.next, this));
     this.listenTo(pane, 'push', this.push);
@@ -25499,22 +25503,36 @@ var PaneSwitcher = Base.extend({
   }
 
 , push: function (view) {
-    this.options.depth++;
+    this.options.depth = this.currentPane + 2;
 
     // Need to create the new pane
     this.render();
 
-    this.setPane(this.options.depth - 1, view);
-    this.goToPane(this.options.depth - 1);
+    this.setPane(this.currentPane + 1, view);
+    this.goToPane(this.currentPane + 1);
   }
 
 , pop: function () {
-    this.removeView('view' + (this.options.depth - 1));
-    this.options.depth--;
+    var self = this
+      , afterTransition
+      , transitionEnded = false;
 
-    this.render();
+    afterTransition = function () {
+      if(transitionEnded)
+        return;
 
-    this.goToPane(this.options.depth - 1);
+      transitionEnded = true;
+
+      self.removeView('view' + (self.currentPane + 1));
+      self.options.depth = (self.currentPane + 1);
+
+      self.render();
+    };
+
+    this.once('transition:end', afterTransition);
+    setTimeout(afterTransition, 400);
+
+    this.goToPane(this.currentPane - 1);
   }
 
 , goToView: function (view) {
@@ -25802,7 +25820,7 @@ describe('A Simple Switcher', function () {
     assert.equal(paneHolder.children[1].children[0].children.length, 2);
   });
 
-  it('should pop the second view', function () {
+  it('should pop the second view', function (done) {
     var switcher
       , paneHolder
       , secondPane
@@ -25815,10 +25833,16 @@ describe('A Simple Switcher', function () {
 
     nextLink.click();
 
-    // There should now be one pane
-    switcher = fixture.children[0];
-    paneHolder = switcher.children[0];
-    assert.equal(paneHolder.children.length, 1);
+    setTimeout(function () {
+
+      // There should now be one pane
+      switcher = fixture.children[0];
+      paneHolder = switcher.children[0];
+      assert.equal(paneHolder.children.length, 1);
+
+      done();
+
+    }, 1000);
   });
 
   it('should push the second view', function () {
