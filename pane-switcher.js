@@ -3,6 +3,7 @@
 var Base = require('ribcage-view')
   , wrap = require('lodash.wrap')
   , bind = require('lodash.bind')
+  , find = require('lodash.find')
   , debounce = require('lodash.debounce')
   , ScrollFix = require('scrollfix');
 
@@ -312,7 +313,7 @@ var PaneSwitcher = Base.extend({
       , innerPane;
 
     if (this['view'+num]) {
-      this.detachSubview(this['view'+num]);
+      this.removeView('view'+num);
     }
 
     // There already is an inner pane
@@ -360,8 +361,10 @@ var PaneSwitcher = Base.extend({
 
 , removeView: function (key) {
     if(this[key]) {
-      this.detachSubview(this[key]);
-      this[key].close();
+      if(find(this.subviews, this[key])) {
+        this.detachSubview(this[key]);
+        this[key].close();
+      }
       delete this[key];
     }
   }

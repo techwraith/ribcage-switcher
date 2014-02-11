@@ -8,6 +8,7 @@
     "lodash.bind": "~2.4.0",
     "lodash.debounce": "~2.4.0",
     "lodash.defer": "~2.4.0",
+    "lodash.find": "~2.4.0",
     "ribcage-view": "~0.0.11",
     "scrollfix": "~0.0.2"
   },
