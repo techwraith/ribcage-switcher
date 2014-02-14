@@ -5,7 +5,8 @@ var Base = require('ribcage-view')
   , bind = require('lodash.bind')
   , find = require('lodash.find')
   , debounce = require('lodash.debounce')
-  , ScrollFix = require('scrollfix');
+  , ScrollFix = require('scrollfix')
+  , $ = require('jquery');
 
 var PaneSwitcher = Base.extend({
 
@@ -138,25 +139,6 @@ var PaneSwitcher = Base.extend({
   }
 
 , pop: function () {
-    var self = this
-      , afterTransition
-      , transitionEnded = false
-      , removedPaneIndex = self.currentPane;
-
-    afterTransition = function () {
-      if(transitionEnded)
-        return;
-
-      transitionEnded = true;
-
-      self.removePane(removedPaneIndex);
-      self.options.depth = removedPaneIndex;
-      self.resize();
-    };
-
-    this.once('transition:end', afterTransition);
-    setTimeout(afterTransition, 400);
-
     this.goToPane(this.currentPane - 1);
   }
 
@@ -199,8 +181,29 @@ var PaneSwitcher = Base.extend({
   }
 
 , goToPane: function (num, noThrottle) {
+    var self = this
+      , afterTransition
+      , transitionEnded = false;
+
     if(!noThrottle && this.currentPane != num)
       this.throttleViews();
+
+    // If in stack switcher mode, need to clean up panes
+    if(self.options.rootView) {
+      afterTransition = function () {
+        if(transitionEnded)
+          return;
+
+        transitionEnded = true;
+
+        self.removePanesAfter(self.currentPane);
+        self.options.depth = self.currentPane + 1;
+        self.resize();
+      };
+
+      this.once('transition:end', afterTransition);
+      setTimeout(afterTransition, 400);
+    }
 
     this.setHolderLeft(this.paneWidth * -(num));
     this.currentPane = num;
@@ -343,11 +346,19 @@ var PaneSwitcher = Base.extend({
   }
 
 , beforeClose: function () {
-    for(var i=0, ii=this.options.depth; i<ii; ++i) {
-      this.removeView('view' + i);
-    }
-
+    this.removePanesAfter(-1);
     $(window).off('resize orientationchange', this.resizeAndOffset);
+  }
+
+, removePanesAfter: function (index) {
+    if(index == null)
+      index = 0;
+    else
+      index = index + 1;
+
+    for(var i=index, ii=this.options.depth; i<ii; ++i) {
+      this.removePane(i);
+    }
   }
 
 , removePane: function (index) {
