@@ -37,8 +37,6 @@
 }
 
 .pane-holder > .pane > * {
-  min-height: 110%;
   position: relative;
-  padding-bottom: 60px;
   overflow: hidden;
 }
