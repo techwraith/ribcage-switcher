@@ -11,7 +11,7 @@
     "lodash.find": "~2.4.0",
     "ribcage-view": "~0.0.11",
     "scrollfix": "~0.0.2",
-    "jquery": "~2.1.0"
+    "jquery": "~1.11.0"
   },
   "devDependencies": {
     "atomify-js": "~0.2.0",
