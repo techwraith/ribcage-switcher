@@ -8,11 +8,6 @@ var atomifyJs = require('atomify-js')
 module.exports = function(grunt) {
     var browsers = [{
           browserName: 'firefox'
-        , version: '26'
-        , platform: 'Windows 8.1'
-        }
-      , {
-          browserName: 'chrome'
         , platform: 'Windows 8.1'
         }
       , {
@@ -22,37 +17,24 @@ module.exports = function(grunt) {
       , {
           browserName: 'internet explorer'
         , platform: 'Windows 8.1'
-        , version: '10'
-        }
-      , {
-          browserName: 'internet explorer'
-        , platform: 'WIN7'
-        , version: '9'
         }
       , {
           browserName: 'iphone'
         , platform: 'OS X 10.9'
-        , version: '7'
-        , 'device-orientation': 'portrait'
         }
       , {
           browserName: 'ipad'
         , platform: 'OS X 10.9'
-        , version: '6'
+        }
+      , {
+          browserName: 'android'
+        , platform: 'Linux'
         , 'device-orientation': 'portrait'
         }
       , {
           browserName: 'android'
         , platform: 'Linux'
-        , version: '4.0'
-        , 'device-orientation': 'portrait'
-        }
-      , {
-          browserName: 'android'
-        , platform: 'Linux'
-        , version: '4.0'
         , 'device-type': 'tablet'
-        , 'device-orientation': 'portrait'
         }];
 
     grunt.initConfig({

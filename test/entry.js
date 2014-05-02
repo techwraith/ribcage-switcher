@@ -50,8 +50,11 @@ describe('A Simple Switcher', function () {
 
     // The inner pane contains the goodies
     innerPane = firstPane.children[0];
-    assert.equal(innerPane.className.split(' ').length, 1);
+    assert.equal(innerPane.className.split(' ').length, 2);
     assert.ok(innerPane.className.split(' ').indexOf('inner-pane') >= 0);
+
+    // Ensure that className doesn't get lost
+    assert.ok(innerPane.className.split(' ').indexOf('first-view') >= 0);
 
     // Make sure there is a next link inside
     nextLink = innerPane.children[0];

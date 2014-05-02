@@ -322,6 +322,10 @@ var PaneSwitcher = Base.extend({
     // There already is an inner pane
     if(targetInnerPane.length) {
       pane.setElement(targetInnerPane);
+
+      if(pane.className)
+        pane.$el.addClass(pane.className)
+
       pane.render();
       this.appendSubview(pane, target);
     }
@@ -334,6 +338,10 @@ var PaneSwitcher = Base.extend({
     else {
       innerPane = $('<div class="inner-pane"></div>');
       pane.setElement(innerPane);
+
+      if(pane.className)
+        pane.$el.addClass(pane.className)
+
       pane.render();
       this.appendSubview(pane, target);
     }
