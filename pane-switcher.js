@@ -112,8 +112,7 @@ var PaneSwitcher = Base.extend({
   }
 
 , push: function (view) {
-    var newPaneIndex = this.currentPane + 1
-      , pane;
+    var newPaneIndex = this.currentPane + 1;
 
     // Remove all panes after the current pane
     for(var i=newPaneIndex, ii=this.options.depth - 1; i<ii; ++i) {
@@ -121,13 +120,15 @@ var PaneSwitcher = Base.extend({
     }
 
     // Append a new pane
-    this['view' + newPaneIndex] = view;
-    pane = this['view' + newPaneIndex];
+    if (this['view'+i]) {
+      this.removeView('view'+i);
+    }
 
     // Wrap panes in a div so that the 110% height mobile hack doesn't affect subview elements
     this['$pane'+newPaneIndex] = $('<div class="pane pane-'+i+'">').append($('<div class="inner-pane">'));
     this.$holder.append(this['$pane'+newPaneIndex]);
-    this.setPane(i, pane);
+    delete this['view' + newPaneIndex]
+    this.setPane(i, view);
 
     this.options.depth = this.currentPane + 2;
 
