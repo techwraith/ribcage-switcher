@@ -131,8 +131,6 @@ var PaneSwitcher = Base.extend({
 
     this.options.depth = this.currentPane + 2;
 
-    this.setPane(this.currentPane + 1, view);
-
     this.resize();
 
     this.goToPane(this.currentPane + 1);
