@@ -104,11 +104,13 @@ var PaneSwitcher = Base.extend({
     this.stopListening(pane, 'push');
     this.stopListening(pane, 'pop');
     this.stopListening(pane, 'goToView');
+    this.stopListening(pane, 'replace');
     this.listenTo(pane, 'previous', bind(this.previous, this));
     this.listenTo(pane, 'next', bind(this.next, this));
     this.listenTo(pane, 'push', this.push);
     this.listenTo(pane, 'pop', this.pop);
     this.listenTo(pane, 'goToView', this.goToView);
+    this.listenTo(pane, 'replace', this.replace);
   }
 
 , push: function (view) {
@@ -350,6 +352,10 @@ var PaneSwitcher = Base.extend({
     this.bindPaneEvents(pane);
 
     new ScrollFix(this['$pane'+num][0]);
+  }
+
+, replace: function (pane) {
+    this.setPane(this.currentPane, pane)
   }
 
 , beforeClose: function () {

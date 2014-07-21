@@ -41,6 +41,7 @@ Triggering these events on a pane will cause the switcher to respond
  * `push` - Pass a view as the first argument, and the switcher will push it onto the stack and move to the new view
  * `pop` - Goes to the previous view and pops the last one off the stack
  * `goToView` - Pass a view as the first argument, and the switcher will backtrack there, popping off views as it goes
+ * `replace` - Pass a view as the first argument, and the switcher will replace the current pane with that view
 
 ## Legacy Use
 
