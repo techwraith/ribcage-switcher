@@ -99,6 +99,9 @@ var PaneSwitcher = Base.extend({
   }
 
 , bindPaneEvents: function (pane) {
+    // if not passed a pane, bail, so that we don't stop listening on everything
+    if (!pane) return;
+
     this.stopListening(pane, 'previous');
     this.stopListening(pane, 'next');
     this.stopListening(pane, 'push');
@@ -314,7 +317,7 @@ var PaneSwitcher = Base.extend({
 , setPane: function (num, pane) {
     var target = this['$pane'+num]
       , targetInnerPane = target.children(':first')
-      , innerPane;
+      ;
 
     if (this['view'+num]) {
       this.removeView('view'+num);
@@ -322,28 +325,15 @@ var PaneSwitcher = Base.extend({
 
     // There already is an inner pane
     if(targetInnerPane.length) {
-      pane.setElement(targetInnerPane);
 
       if(pane.className)
-        pane.$el.addClass(pane.className)
+        pane.$el.addClass(pane.className);
 
       pane.render();
-      this.appendSubview(pane, target);
+      this.appendSubview(pane, targetInnerPane);
     }
     // If we are re-attaching an existing pane
     else if(pane.$el.hasClass('inner-pane')) {
-      this.appendSubview(pane, target);
-    }
-    // It is possible that the inner pane was removed
-    // with a detached view
-    else {
-      innerPane = $('<div class="inner-pane"></div>');
-      pane.setElement(innerPane);
-
-      if(pane.className)
-        pane.$el.addClass(pane.className)
-
-      pane.render();
       this.appendSubview(pane, target);
     }
 
