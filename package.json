@@ -1,6 +1,6 @@
 {
   "name": "ribcage-switcher",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A left and right view switcher for ribcage-ui",
   "main": "pane-switcher.js",
   "dependencies": {
