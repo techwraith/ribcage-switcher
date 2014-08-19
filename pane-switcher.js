@@ -287,7 +287,7 @@ var PaneSwitcher = Base.extend({
       self.trigger('transition:end', self.currentPane, self['view'+self.currentPane]);
 
       eachPane(function (subview) {
-        subview.trigger('transition:end');
+        subview.trigger('transition:end', self.currentPane, self['view'+self.currentPane]);
       });
 
       self.$holder.off(animationEvents, disableThrottling);
@@ -296,7 +296,7 @@ var PaneSwitcher = Base.extend({
     self.trigger('transition:start', self.currentPane, self['view'+self.currentPane]);
 
     eachPane(function (subview) {
-      subview.trigger('transition:start');
+      subview.trigger('transition:start', self.currentPane, self['view'+self.currentPane]);
     });
 
     self.$holder.one(animationEndEvents, disableThrottling);
